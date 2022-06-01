@@ -9,7 +9,9 @@ Place extract_pka.py in {Game Folder}/data/asset/D3D11 and run.  First argument 
 # Compatibility
 
 The following games are known to be compatible with this program:  
+
 The Legend of Heroes: Trails of Cold Steel III (PC)
+
 The Legend of Heroes: Trails of Cold Steel IV (PC)
 
 My fork has not been tested with the Switch versions, but the original code states there is compatibility.
