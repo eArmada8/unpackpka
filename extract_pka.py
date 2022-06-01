@@ -3,7 +3,7 @@
 # syntax: python3 extract_pka.py assets.pka PKG_FILE_TO_EXTRACT
 # If PKG_FILE_TO_EXTRACT is a specific filename (case-sensitive), it will only extract that filename.
 # If PKG_FILE_TO_EXTRACT is part of a filename, it will do a search and extract all matches.
-# GitHub eArmada8 / _______, forked from  uyjulian/unpackpka 
+# GitHub eArmada8/unpackpka, forked from  uyjulian/unpackpka 
 
 import sys
 import os
