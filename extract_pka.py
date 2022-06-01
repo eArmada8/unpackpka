@@ -1,9 +1,13 @@
+# Script to extract specific .pkg files from assets.pka, tested in Trails of Cold Steel 3/4.  Place in the
+# {game}\data\asset\D3D11 folder and execute.  If no arguments are passed, it will start in interactive mode.
+# syntax: python3 extract_pka.py assets.pka PKG_FILE_TO_EXTRACT
+# If PKG_FILE_TO_EXTRACT is a specific filename (case-sensitive), it will only extract that filename.
+# If PKG_FILE_TO_EXTRACT is part of a filename, it will do a search and extract all matches.
+# GitHub eArmada8 / _______, forked from  uyjulian/unpackpka 
+
 import sys
 import os
 import struct
-
-# syntax: python3 /path/to/unpackpka.py /path/to/assets.pka /path/to/destination/directory
-# Destination directory must exist. If it is omitted, it will use dirname of input file instead
 
 # Set current directory
 os.chdir(os.path.abspath(os.path.dirname(__file__)))
