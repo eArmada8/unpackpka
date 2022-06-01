@@ -3,7 +3,7 @@
 # syntax: python3 extract_pka.py assets.pka PKG_FILE_TO_EXTRACT
 # If PKG_FILE_TO_EXTRACT is a specific filename (case-sensitive), it will only extract that filename.
 # If PKG_FILE_TO_EXTRACT is part of a filename, it will do a search and extract all matches.
-# GitHub eArmada8/unpackpka, forked from  uyjulian/unpackpka 
+# GitHub eArmada8/unpackpka, forked from uyjulian/unpackpka 
 
 import sys
 import os
@@ -58,13 +58,14 @@ with open(asset_file, "rb") as f:
             rebased_file_entry.append(rebased_file_entry_start) # append the new offset
             rebased_file_entry_start += rebased_file_entry[1]
             rebased_package_file_entries[file_entry[0]] = rebased_file_entry
-        with open(package_name, "wb") as wf:
-            wf.write(b"\x00\x00\x00\x00")
-            wf.write(struct.pack("<I", len(package_file_entries)))
-            for file_entry_name in rebased_package_file_entries.keys():
-                file_entry = rebased_package_file_entries[file_entry_name]
-                wf.write(struct.pack("<64sIIII", file_entry_name, file_entry[2], file_entry[1], file_entry[4], file_entry[3]))
-            for file_entry_name in rebased_package_file_entries.keys():
-                file_entry = rebased_package_file_entries[file_entry_name]
-                f.seek(file_entry[0])
-                wf.write(f.read(file_entry[1])) # Copy data
+        if not os.path.exists(package_name):
+            with open(package_name, "wb") as wf:
+                wf.write(b"\x00\x00\x00\x00")
+                wf.write(struct.pack("<I", len(package_file_entries)))
+                for file_entry_name in rebased_package_file_entries.keys():
+                    file_entry = rebased_package_file_entries[file_entry_name]
+                    wf.write(struct.pack("<64sIIII", file_entry_name, file_entry[2], file_entry[1], file_entry[4], file_entry[3]))
+                for file_entry_name in rebased_package_file_entries.keys():
+                    file_entry = rebased_package_file_entries[file_entry_name]
+                    f.seek(file_entry[0])
+                    wf.write(f.read(file_entry[1])) # Copy data
