@@ -12,43 +12,55 @@ import struct
 # Set current directory
 os.chdir(os.path.abspath(os.path.dirname(__file__)))
 
+# Determine the assets.pka filename, use the first argument as default
 try:
-    asset_file = sys.argv[1]
+    asset_file = sys.argv[1].lower()
     if not os.path.exists(asset_file):
         raise Exception('Error: Asset archive "' + asset_file + '" does not exist!')
 except IndexError:
-    asset_file = str(input("Please enter the name of assets archive: [default: assets.pka]  ") or "assets.pka")
+    asset_file = str(input("Please enter the name of assets archive: [default: assets.pka]  ") or "assets.pka").lower()
     while not os.path.exists(asset_file):
         asset_file = str(input("File does not exist.  Please enter the name of assets archive: [default: assets.pka]  ") or "assets.pka")
 
 with open(asset_file, "rb") as f:
+    # Check for proper file format
     pka_header, = struct.unpack("<I", f.read(4))
     if pka_header != 0x7FF7CF0D:
         raise Exception("This isn't a pka file")
+
+    # Grab the total number of .pkg files in the .pka file
     total_package_entries, = struct.unpack("<I", f.read(4))
+
+    # Grab the names of all .pkg files in the .pka file as well how many files in each package
     package_entries = {}
     for _ in range(total_package_entries):
         package_name, number_files = struct.unpack("<32sI", f.read(32+4))
+        # Grab the names of all files in each individual .pkg archive as well as their hashes
         file_entries = []
         for _ in range(number_files):
             file_entry_name, file_entry_hash = struct.unpack("<64s32s", f.read(64+32))
             file_entries.append([file_entry_name.rstrip(b"\x00"), file_entry_hash])
         package_entries[package_name.rstrip(b"\x00").decode("ASCII")] = file_entries
     total_file_entries, = struct.unpack("<I", f.read(4))
+
+    # Grab the metadata of all files in the .pka file, indexed by file hashes
     file_entries = {}
     for _ in range(total_file_entries):
         file_entry_hash, file_entry_offset, file_entry_compressed_size, file_entry_uncompressed_size, file_entry_flags = struct.unpack("<32sQIII", f.read(32+8+4+4+4))
         file_entries[file_entry_hash] = [file_entry_offset, file_entry_compressed_size, file_entry_uncompressed_size, file_entry_flags]
 
+    # Determine which .pkg files to extract, use the second argument as default
     try:
         package_filter = sys.argv[2]
     except IndexError:    
-        package_filter = str(input("Please enter the name of package to extract: [partial matches allowed, case sensitive, .pkg indicates exact match only]  "))
-    if not package_filter[-4:] == '.pkg':
-        packages_to_extract = dict(filter(lambda item: package_filter in item[0], package_entries.items()))
+        package_filter = str(input("Please enter the name of package to extract: [partial matches allowed, .pkg = exact match only]  "))
+    # Filter the list of packages down to only those matching the 
+    if not package_filter[-4:].lower() == '.pkg':
+        packages_to_extract = dict(filter(lambda item: package_filter.upper() in item[0], package_entries.items()))
     else:
-        packages_to_extract = dict(filter(lambda item: package_filter == item[0], package_entries.items()))
-        
+        packages_to_extract = dict(filter(lambda item: package_filter[:-4].upper() + package_filter[-4:].lower() == item[0], package_entries.items()))
+
+    # Extract each desired .pkg file from the 
     for package_name in packages_to_extract.keys():
         package_file_entries = package_entries[package_name]
         rebased_package_file_entries = {}
