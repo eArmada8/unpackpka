@@ -52,8 +52,17 @@ with open(asset_file, "rb") as f:
     # Determine which .pkg files to extract, use the second argument as default
     try:
         package_filter = sys.argv[2]
-    except IndexError:    
-        package_filter = str(input("Please enter the name of package to extract: [partial matches allowed, .pkg = exact match only]  "))
+    except IndexError:
+        package_input = False
+        while package_input == False:
+            package_filter = str(input("Please enter the name of package to extract from {0}: [partial matches allowed, .pkg = exact match only]  ".format(asset_file)))
+            if package_filter == '':
+                print("A blank name will extract EVERY file.  Did you mean to extract EVERY file?")
+                all_package_confirm = str(input("Type YES to proceed, or press Enter to go back. "))
+                if all_package_confirm == 'YES':
+                    package_input = True
+            else:
+                package_input = True
     # Filter the list of packages down to only those matching the 
     if not package_filter[-4:].lower() == '.pkg':
         packages_to_extract = dict(filter(lambda item: package_filter.upper() in item[0], package_entries.items()))
